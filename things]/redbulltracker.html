@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @font-face {
+            font-family: 'ggsans';
+            src: url(fonts/ggsans.ttf);
+        }
+
+        @font-face {
+            font-family: 'ggsansbold';
+            src: url(fonts/ggsansbold.ttf);
+        }
+
+        body {
+            background-color: #151516;
+            color: white;
+            font-family: 'ggsans', sans-serif;
+            font-size: 1.5rem;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        nav {
+            width: 100%;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            position: relative;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 1px;
+        }
+
+        .nav-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.8rem;
+            font-weight: 100;
+            color: #ffffff;
+            letter-spacing: 1px;
+            pointer-events: none;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links li a {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            background-color: #f2ef58;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .nav-links li a:hover {
+            color: #A8BBFF;
+            text-shadow: 0 0 10px #f7f5a7;
+            box-shadow: 0 0 10px #f7f5a7;
+        }
+
+        .nav-links li a img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 5%;
+            gap: 1rem;
+        }
+
+        #map {
+            flex: 1;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            min-height: 400px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        #markButton {
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-family: 'ggsansbold', sans-serif;
+            background-color: #f2ef58;
+            color: #151516;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        #markButton:hover {
+            box-shadow: 0 0 14px rgba(249, 255, 168, 0.6);
+            transform: translateY(-2px);
+        }
+
+        #markButton:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #status {
+            font-size: 1rem;
+            opacity: 0.85;
+        }
+
+        .leaflet-popup-content {
+            color: #151516;
+            font-family: 'ggsans', sans-serif;
+        }
+
+        #rotating-text {
+    transition: opacity 1s ease;
+    opacity: 1;
+}
+#rotating-text.fade-out {
+    opacity: 0;
+}
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">Mirzart</div>
+        <div class="nav-center" id="rotating-text">Dont you Forget!!</div>
+        <ul class="nav-links">
+            <li><a href="/" aria-label="Home"><img src="../images/navbar/home.png" alt=""></a></li>
+            <li><a href="https://buymeacoffee.com/optic" target="_blank" rel="noopener noreferrer" aria-label="Buy me a coffee"><img src="../images/navbar/coffee-cup.png" alt=""></a></li>
+        </ul>
+    </nav>
+
+    <div class="content">
+        <div class="controls">
+            <button id="markButton">Mark a Can Car</button>
+            <span id="status">awesome sauce thingy</span>
+        </div>
+        <div id="map"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const MARKER_EXPIRY_HOURS = 48;
+        const STORAGE_KEY = 'locationMarkers';
+
+        // Initialize map
+       const map = L.map('map', {
+            minZoom: 2
+        }).setView([20, 0], 2);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19,
+            minZoom: 2,
+        }).addTo(map);
+
+        const markButton = document.getElementById('markButton');
+        const statusText = document.getElementById('status');
+
+        // Custom icon
+        const customIcon = L.icon({
+            iconUrl: '../thingsBUTTHINGIER/useful/redbulltrack/redbull.png',
+            iconSize: [64, 64],
+            iconAnchor: [32, 64],
+            popupAnchor: [0, -64]
+        });
+
+        // Load and display existing markers
+        function loadMarkers() {
+            const markers = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            const now = Date.now();
+            const validMarkers = [];
+
+            markers.forEach(markerData => {
+                const expiryTime = markerData.timestamp + (MARKER_EXPIRY_HOURS * 60 * 60 * 1000);
+                if (now < expiryTime) {
+                    validMarkers.push(markerData);
+                    const marker = L.marker([markerData.lat, markerData.lng], { icon: customIcon }).addTo(map);
+                    
+                    const timeLeft = Math.round((expiryTime - now) / (60 * 60 * 1000));
+                    marker.bindPopup(`Marked: ${new Date(markerData.timestamp).toLocaleString()}<br>Expires in: ${timeLeft} hours`);
+                }
+            });
+
+            // Save only valid markers
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(validMarkers));
+        }
+
+        // Add new marker
+        function addMarker(lat, lng) {
+            const markers = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            const markerData = {
+                lat,
+                lng,
+                timestamp: Date.now()
+            };
+
+            markers.push(markerData);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(markers));
+
+            const marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+            marker.bindPopup(`Marked: ${new Date().toLocaleString()}<br>Expires in: 48 hours`).openPopup();
+            
+            map.setView([lat, lng], 13);
+        }
+
+        // Mark location button
+        markButton.addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                statusText.textContent = 'Geolocation not supported by your browser';
+                return;
+            }
+
+            markButton.disabled = true;
+            statusText.textContent = 'Getting your location...';
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    addMarker(latitude, longitude);
+                    statusText.textContent = 'Location marked successfully!';
+                    markButton.disabled = false;
+                },
+                (error) => {
+                    let message = 'Unable to get location';
+                    if (error.code === error.PERMISSION_DENIED) {
+                        message = 'Location permission denied';
+                    } else if (error.code === error.POSITION_UNAVAILABLE) {
+                        message = 'Location unavailable';
+                    } else if (error.code === error.TIMEOUT) {
+                        message = 'Location request timed out';
+                    }
+                    statusText.textContent = message;
+                    markButton.disabled = false;
+                }
+            );
+        });
+
+        // Load existing markers on page load
+        loadMarkers();
+
+        // Clean up expired markers every minute
+        setInterval(() => {
+            loadMarkers();
+        }, 60000);
+    </script>
+<script src="../rotator.js"></script>
+</body>
+</html>

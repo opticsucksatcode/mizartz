@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brat Cover Generator</title>
+
+<link rel="stylesheet" href="../styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+/* =========================
+   PAGE WRAPPER (SITE STYLE)
+========================= */
+.generator-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  padding-bottom: 3rem;
+}
+
+/* =========================
+   DO NOT TOUCH — BRAT COVER
+========================= */
+#cover {
+  width: 70vmin;
+  height: 70vmin;
+  background: #d0ff14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  text-align: center;
+  padding: 5%;
+  box-sizing: border-box;
+}
+
+#cover span {
+  display: inline-block;
+  font-size: 10vmin;
+  font-weight: 400;
+  font-family: Arial, Helvetica, sans-serif; /* ← THIS */
+  text-transform: lowercase;
+  color: black;
+  line-height: 1;
+  transform: scaleX(1.3);
+  filter: blur(0.8px) contrast(110%) saturate(120%);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+
+/* =========================
+   INPUTS / BUTTONS (SITE UI)
+========================= */
+.generator-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.generator-controls input {
+  width: 320px;
+  padding: 12px;
+  border-radius: 14px;
+  border: none;
+  font-size: 1.1rem;
+  text-align: center;
+  background: rgba(255,255,255,0.08);
+  color: white;
+  outline: none;
+}
+
+.generator-controls input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.generator-controls button {
+  padding: 10px 22px;
+  border-radius: 16px;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  background: #f2ef58;
+  transition: 0.25s;
+}
+
+.generator-controls button:hover {
+  box-shadow: 0 0 12px #f7f5a7;
+}
+
+/* =========================
+   COMMANDS PANEL
+========================= */
+#commands {
+  margin-top: 1.5rem;
+  max-width: 700px;
+  background: rgba(255,255,255,0.05);
+  padding: 1.2rem 1.5rem;
+  border-radius: 18px;
+  font-size: 1rem;
+}
+
+#commands h3 {
+  font-family: 'ggsansbold';
+  margin-bottom: 0.5rem;
+}
+
+#commands ul {
+  padding-left: 1.2rem;
+}
+
+#commands code {
+  background: rgba(0,0,0,0.3);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     NAVBAR (UNCHANGED)
+========================= -->
+<nav>
+  <div class="logo">mizartz</div>
+  <div class="nav-center" id="rotating-text">I am the FUROR</div>
+  <ul class="nav-links">
+    <li><a href="/" aria-label="Home"><img src="../images/navbar/home.png" alt=""></a></li>
+    <li><a href="https://buymeacoffee.com/optic" target="_blank" aria-label="Coffee"><img src="../images/navbar/coffee-cup.png" alt=""></a></li>
+  </ul>
+</nav>
+
+<main class="content">
+  <div class="generator-wrap">
+
+    <div id="cover">
+      <span>brat</span>
+    </div>
+
+    <div class="generator-controls">
+      <input type="text" id="textInput" placeholder="Type your brat text..." />
+      <button onclick="downloadCover()">Download Cover</button>
+    </div>
+
+    <div id="commands">
+      <h3>Commands</h3>
+      <ul>
+        <li><code>READ ME</code> this is a old script so it wont be that good, k bye</li>
+        <li><code>&lt;bg:HEX&gt;</code> → background color</li>
+        <li><code>&lt;t:HEX&gt;</code> → text color</li>
+        <li><code>&lt;b&gt;</code>, <code>&lt;i&gt;</code>, <code>&lt;u&gt;</code> → text styles</li>
+      </ul>
+    </div>
+
+  </div>
+</main>
+
+<script src="../rotator.js"></script>
+
+<script>
+const cover = document.getElementById("cover");
+const span = cover.querySelector("span");
+const input = document.getElementById("textInput");
+
+function applyCustomText(rawText) {
+  if (rawText.trim() === "<blank>") return "";
+
+  let bg = "#d0ff14";
+  let textColor = "black";
+  let processedText = rawText;
+
+  const bgMatch = rawText.match(/<bg:([#a-fA-F0-9]{3,6})>/);
+  if (bgMatch) {
+    bg = bgMatch[1].startsWith("#") ? bgMatch[1] : "#" + bgMatch[1];
+    processedText = processedText.replace(bgMatch[0], "");
+  }
+
+  const tMatch = rawText.match(/<t:([#a-fA-F0-9]{3,6})>/);
+  if (tMatch) {
+    textColor = tMatch[1].startsWith("#") ? tMatch[1] : "#" + tMatch[1];
+    processedText = processedText.replace(tMatch[0], "");
+  }
+
+  cover.style.background = bg;
+  span.style.color = textColor;
+  return processedText;
+}
+
+function adjustFontSize() {
+  let fontSize = 10;
+  span.style.fontSize = fontSize + "vmin";
+
+  while (
+    (span.scrollWidth > cover.clientWidth * 0.95 ||
+     span.scrollHeight > cover.clientHeight * 0.95) &&
+    fontSize > 4
+  ) {
+    fontSize--;
+    span.style.fontSize = fontSize + "vmin";
+  }
+}
+
+input.addEventListener("input", () => {
+  span.innerHTML = applyCustomText(input.value || "brat");
+  adjustFontSize();
+});
+
+span.innerHTML = applyCustomText("brat");
+adjustFontSize();
+
+function downloadCover() {
+  html2canvas(cover).then(canvas => {
+    const link = document.createElement("a");
+    link.download = "brat_cover.png";
+    link.href = canvas.toDataURL();
+    link.click();
+  });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,201 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing:  border-box;
+}
+
+@font-face {
+  font-family: 'ggsans';
+  src: url(fonts/ggsans.ttf);
+}
+@font-face {
+  font-family: 'ggsansbold';
+  src: url(fonts/ggsansbold.ttf);
+}
+body { 
+  background-color: #151516;
+  color: white;
+  font-family: 'ggsans';
+  font-size: 1.5rem;
+}
+nav {
+  width: 100%;
+  padding: 1rem 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  margin-bottom: 2rem;
+  position: relative;
+  
+}
+
+.content {
+  margin-left: 2%;
+}
+
+.content b {
+  font-family: 'ggsansbold';
+}
+
+.center {
+  text-align: center;
+  margin-left: 25%;
+  margin-right: 25%;
+}
+
+
+.logo {
+  font-size:  3rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+.nav-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.8rem;
+  font-weight: 100;
+  color: #ffffff;
+  letter-spacing: 1px;
+  pointer-events: none; /* optional: prevents blocking clicks */
+}
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-links li a {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background-color: #f2ef58;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.nav-links li a:hover {
+  color:#A8BBFF;
+  text-shadow: 0 0 10px #f7f5a7;
+  box-shadow: 0 0 10px #f7f5a7;
+}
+
+.nav-links li a img {
+  width: 32px;
+  height: 32px;
+}
+
+.card-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    padding: 2rem 0;
+    justify-content: center;
+
+}
+
+.card {
+    width: 180px;
+    text-decoration: none;
+    color: white;
+    font-family: 'ggsans';
+}
+
+.card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.05);
+    transition: 0.25s ease;
+}
+
+.card span {
+    display: block;
+    margin-top: 10px;
+    text-align: center;
+    font-size: 1.2rem;
+    opacity: 0.85;
+}
+
+/* hover = subtle glow (matches navbar) */
+.card:hover img {
+    box-shadow: 0 0 14px rgba(249, 255, 168, 0.6);
+    transform: translateY(-2px);
+}
+
+.card:hover span {
+    opacity: 1;
+}
+
+/* =========================
+   GAME OVERLAY
+========================= */
+#gameOverlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: none;
+    z-index: 9999;
+}
+
+#gameOverlay iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* =========================
+   CLOSE ZONE (INVISIBLE)
+========================= */
+#closeZone {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 140px;
+    height: 100px;
+    z-index: 10001;
+}
+
+/* =========================
+   CLOSE BUTTON (X)
+========================= */
+#closeGame {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+
+    font-size: 28px;
+    background: none;
+    color: white;
+    border: none;
+    cursor: pointer;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+/* ✅ ONLY show when mouse is close */
+#closeZone:hover #closeGame {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+
+#rotating-text {
+    transition: opacity 1s ease;
+    opacity: 1;
+}
+#rotating-text.fade-out {
+    opacity: 0;
+}
+
