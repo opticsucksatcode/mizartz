@@ -46,7 +46,9 @@ nav {
   margin-right: 25%;
 }
 
-
+.game-section h2 {
+    text-align: center;
+}
 .logo {
   font-size:  3rem;
   font-weight: 700;
@@ -199,3 +201,12 @@ nav {
     opacity: 0;
 }
 
+.gravity-item {
+  position: absolute !important;
+  cursor: grab;
+  user-select: none;
+}
+
+.gravity-item:active {
+  cursor: grabbing;
+}

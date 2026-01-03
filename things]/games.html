@@ -13,7 +13,7 @@
         <div class="nav-center" id="rotating-text">IM YOUR OMEGA!!!</div>
         <ul class="nav-links">
             <li>
-                <a href="/" aria-label="Home">
+                <a href="/" class="allow-link" aria-label="Home">
                     <img src="../images/navbar/home.png" alt="">
                 </a>
             </li>
@@ -33,14 +33,21 @@
         <p>stupid sstuff that has no purpose</p>
         <br>
 
+    <section class="game-section">
+        <h2>Games Made by me</h2>
         <div class="card-grid">
             <a href="#"
                class="card"
-               data-game="minesweeper/minesweeper.html"
+               data-game="../gamesimade/minesweeper/minesweeper.html"
                onclick="openGame(event)">
                 <img src="../images/cards/games/minesweeper.png" alt="">
                 <span>Mine Sweeper</span>
             </a>
+
+            </section>
+            <section class="game-section">
+            <h2>Games</h2>
+            <div class="card-grid">
 
             <a href="#"
                class="card"
@@ -476,6 +483,8 @@
 
     <!-- ✅ SCRIPT (must be inside body) -->
 <script>
+
+
 /* =========================
    FAVICON HELPERS
 ========================= */
@@ -555,3 +564,4 @@ document.getElementById("closeGame").onclick = () => {
 </html>
 
 <script src="../rotator.js"></script>
+
