@@ -62,7 +62,7 @@ nav {
   font-weight: 100;
   color: #ffffff;
   letter-spacing: 1px;
-  pointer-events: none; 
+  pointer-events: none; /* optional: prevents blocking clicks */
 }
 .nav-links {
   list-style: none;
@@ -134,4 +134,15 @@ nav {
 
 .card:hover span {
     opacity: 1;
+}
+
+
+
+
+#rotating-text {
+    transition: opacity 1s ease;
+    opacity: 1;
+}
+#rotating-text.fade-out {
+    opacity: 0;
 }
