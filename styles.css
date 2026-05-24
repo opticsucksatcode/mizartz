@@ -46,7 +46,9 @@ nav {
   margin-right: 25%;
 }
 
-
+.game-section h2 {
+    text-align: center;
+}
 .logo {
   font-size:  3rem;
   font-weight: 700;
@@ -138,7 +140,6 @@ nav {
 
 
 
-
 #rotating-text {
     transition: opacity 1s ease;
     opacity: 1;
@@ -146,3 +147,4 @@ nav {
 #rotating-text.fade-out {
     opacity: 0;
 }
+
